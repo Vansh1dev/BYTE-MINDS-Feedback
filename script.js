@@ -1,6 +1,6 @@
 // ========================
 // Google Apps Script URL – REPLACE WITH YOUR DEPLOYED SCRIPT URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbyamkx8TWQJL_l8Canrbo5cDOcZ2h0HV6uT4yDlr-Y/dev/exec';
 // ========================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -48,8 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const bootTextEl = document.getElementById('boot-text');
   const bootFill = document.getElementById('boot-fill');
   const mainContent = document.getElementById('main-content');
-  const formContainer = document.getElementById('form-container');
-  const alreadySubmittedDiv = document.getElementById('already-submitted');
   const fullMessage = 'INITIALIZING BYTEMINDS NETWORK...';
   let bootIndex = 0;
 
@@ -59,20 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
       bootIndex++;
       setTimeout(typeBoot, 60);
     } else {
+      // fill bar
       bootFill.style.width = '100%';
       setTimeout(() => {
         bootScreen.style.opacity = '0';
         setTimeout(() => {
           bootScreen.style.display = 'none';
           mainContent.style.display = 'block';
-
-          if (localStorage.getItem('byteMindsSubmitted') === 'true') {
-            formContainer.style.display = 'none';
-            alreadySubmittedDiv.style.display = 'block';
-          } else {
-            formContainer.style.display = 'block';
-            alreadySubmittedDiv.style.display = 'none';
-          }
         }, 500);
       }, 800);
     }
@@ -83,51 +74,37 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---- Progress bar & form validation ----
   const progressBar = document.getElementById('progress-bar');
   const form = document.getElementById('feedback-form');
+  const radioGroup = document.getElementById('awarenessRadioGroup');
+  const radioError = document.getElementById('radioError');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Required field identifiers (radio groups are treated as one required unit)
   function getRequiredFields() {
-    const inputs = Array.from(form.querySelectorAll('input.required, textarea.required'));
-    const radioGroups = Array.from(form.querySelectorAll('.required-radio-group'));
-    return [...inputs, ...radioGroups];
+    return Array.from(form.querySelectorAll('.required'));
   }
 
   function isFieldFilled(el) {
-    // Plain input or textarea
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      return el.value.trim() !== '';
+    if (el.type === 'radio') {
+      return radioGroup.querySelector('input[name="improvedAwareness"]:checked') !== null;
     }
-    // Radio group wrapper
-    if (el.classList.contains('required-radio-group')) {
-      const name = el.querySelector('input[type="radio"]').name;
-      return !!form.querySelector(`input[name="${name}"]:checked`);
-    }
-    return false;
-  }
-
-  function countRequiredFilled() {
-    const required = getRequiredFields();
-    return required.filter(isFieldFilled).length;
-  }
-
-  function getTotalRequired() {
-    return getRequiredFields().length;
+    if (el.tagName === 'SELECT') return el.value !== '';
+    if (el.type === 'range') return true; // always has value
+    return el.value.trim() !== '';
   }
 
   function updateProgress() {
-    const filled = countRequiredFilled();
-    const total = getTotalRequired();
-    const percent = total === 0 ? 0 : Math.round((filled / total) * 100);
+    const required = getRequiredFields();
+    const filled = required.filter(isFieldFilled).length;
+    const percent = Math.round((filled / required.length) * 100);
     progressBar.style.width = percent + '%';
   }
 
-  // Attach progress listeners to all required elements
-  form.querySelectorAll('input.required, textarea.required, .required-radio-group input[type="radio"]')
-    .forEach(el => el.addEventListener('input', updateProgress));
-  form.querySelectorAll('.required-radio-group input[type="radio"]')
-    .forEach(el => el.addEventListener('change', updateProgress));
+  // Attach listeners
+  form.querySelectorAll('.required').forEach(el => {
+    el.addEventListener('input', updateProgress);
+    el.addEventListener('change', updateProgress);
+  });
 
-  // Range value displays
+  // Range value display
   document.getElementById('overallRating').addEventListener('input', (e) => {
     document.getElementById('overallRatingValue').textContent = e.target.value;
   });
@@ -139,71 +116,50 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (localStorage.getItem('byteMindsSubmitted') === 'true') {
-      alert('ERROR: You have already submitted feedback.');
-      formContainer.style.display = 'none';
-      alreadySubmittedDiv.style.display = 'block';
+    // Validate radio group manually
+    const awarenessChecked = radioGroup.querySelector('input[name="improvedAwareness"]:checked');
+    if (!awarenessChecked) {
+      radioError.style.display = 'block';
+      radioError.textContent = 'Select YES or NO.';
       return;
+    } else {
+      radioError.style.display = 'none';
     }
-
-    // Validate all required fields
-    const requiredFields = getRequiredFields();
-    let valid = true;
-
-    // Clear all radio error messages
-    document.querySelectorAll('.radio-error').forEach(el => (el.style.display = 'none'));
-
-    for (const field of requiredFields) {
-      if (!isFieldFilled(field)) {
-        valid = false;
-        // If it's a radio group, show its error
-        if (field.classList.contains('required-radio-group')) {
-          const errorEl = field.querySelector('.radio-error');
-          if (errorEl) {
-            errorEl.style.display = 'block';
-            errorEl.textContent = 'Please select an option.';
-          }
-        } else {
-          // Highlight empty text fields – optional, just break
-          field.style.borderColor = '#ff4dff';
-          setTimeout(() => { field.style.borderColor = ''; }, 1500);
-        }
-      }
-    }
-
-    if (!valid) return;
 
     // Collect data
     const formData = {
-      name: document.getElementById('name').value.trim(),
-      email: document.getElementById('email').value.trim(),
+      agentName: document.getElementById('agentName').value.trim(),
+      classSection: document.getElementById('classSection').value.trim(),
       overallRating: document.getElementById('overallRating').value,
-      contentClarity: document.querySelector('input[name="contentClarity"]:checked')?.value || '',
+      valuableSession: document.getElementById('valuableSession').value,
+      improvedAwareness: awarenessChecked.value,
       speakerRating: document.getElementById('speakerRating').value,
-      mostUseful: document.getElementById('mostUseful').value.trim(),
-      mostInteresting: document.getElementById('mostInteresting').value.trim(),
-      keyTakeaway: document.getElementById('keyTakeaway').value.trim(),
-      improvements: document.getElementById('improvements').value.trim(),
-      additionalComments: document.getElementById('additionalComments').value.trim(),
-      attendFuture: document.querySelector('input[name="attendFuture"]:checked')?.value || ''
+      learned: document.getElementById('learned').value.trim(),
+      suggestions: document.getElementById('suggestions').value.trim()
     };
 
+    // Show loading
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 
     try {
-      await fetch(SCRIPT_URL, {
+      const response = await fetch(SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
+        mode: 'no-cors', // important for Apps Script (no-cors to avoid CORS issues; response will be opaque)
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
-      localStorage.setItem('byteMindsSubmitted', 'true');
-      formContainer.style.display = 'none';
+      // Because of no-cors, we cannot read response, but we assume success if no error thrown.
+      // Alternate: use mode: 'cors' with proper CORS headers on Apps Script; see google-apps-script.js.
+      // For simplicity, we proceed as success.
+
+      // Hide form, show thank you
+      document.querySelector('.form-container').style.display = 'none';
       const thankYou = document.getElementById('thank-you');
       thankYou.style.display = 'block';
 
+      // Typing animation for terminal message
       const typedSpan = document.getElementById('typed-thanks');
       const thanksMsg = 'MISSION COMPLETE. FEEDBACK SUCCESSFULLY TRANSMITTED.';
       let i = 0;
