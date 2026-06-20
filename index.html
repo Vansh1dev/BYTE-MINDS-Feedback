@@ -1,143 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ByteMinds Feedback Portal</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <canvas id="matrix"></canvas>
+<form id="feedback-form" novalidate>
+  <!-- 1. Name -->
+  <div class="input-group">
+    <label for="name">Agent Name</label>
+    <input type="text" id="name" name="name" class="required" placeholder="Enter your full name" autocomplete="name" />
+  </div>
 
-  <!-- Boot screen overlay -->
-  <div id="boot-screen">
-    <div class="boot-content">
-      <p id="boot-text"></p>
-      <span class="cursor blink">_</span>
-      <div class="boot-bar">
-        <div class="boot-fill" id="boot-fill"></div>
-      </div>
+  <!-- 2. Email -->
+  <div class="input-group">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" class="required" placeholder="agent@byteminds.net" autocomplete="email" />
+  </div>
+
+  <!-- 3. Overall workshop rating (1–5) -->
+  <div class="input-group">
+    <label for="overallRating">How would you rate our workshop overall? (1‑5)</label>
+    <div class="range-wrapper">
+      <input type="range" id="overallRating" name="overallRating" min="1" max="5" value="3" class="required" />
+      <span class="range-value" id="overallRatingValue">3</span>
     </div>
   </div>
 
-  <!-- Main content (hidden initially) -->
-  <div id="main-content" style="display: none;">
-    <header>
-      <!-- ByteMinds Logo – replace "logo.png" with your actual filename -->
-      <img src="logo.png" alt="ByteMinds Logo" class="logo-img" />
-      <h1 class="logo">BYTEMINDS</h1>
-      <p class="tagline">Cybersecurity Workshop Feedback Portal</p>
-    </header>
-
-    <!-- Duplicate submission message -->
-    <div id="already-submitted" style="display: none;">
-      <div class="terminal-card">
-        <p class="error-msg">[ERROR] AGENT ALREADY IN SYSTEM.</p>
-        <p class="error-msg">FEEDBACK ALREADY TRANSMITTED.</p>
-        <span class="cursor blink">_</span>
-      </div>
+  <!-- 4. Content clarity -->
+  <div class="input-group required-radio-group" id="contentClarityGroup">
+    <label>Was the content clear and easy to understand?</label>
+    <div class="radio-group">
+      <label class="radio-label">
+        <input type="radio" name="contentClarity" value="Yes, completely" />
+        <span class="radio-custom"></span> Yes, completely
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="contentClarity" value="Mostly clear" />
+        <span class="radio-custom"></span> Mostly clear
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="contentClarity" value="Somewhat clear" />
+        <span class="radio-custom"></span> Somewhat clear
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="contentClarity" value="Not very clear" />
+        <span class="radio-custom"></span> Not very clear
+      </label>
     </div>
+    <span class="radio-error" id="contentClarityError"></span>
+  </div>
 
-    <div class="form-container" id="form-container">
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
-      <form id="feedback-form" novalidate>
-        <!-- Agent Name -->
-        <div class="input-group">
-          <label for="agentName">Agent Name</label>
-          <input type="text" id="agentName" name="agentName" class="required" placeholder="Enter your codename" />
-        </div>
-
-        <!-- Class & Section -->
-        <div class="input-group">
-          <label for="classSection">Class & Section</label>
-          <input type="text" id="classSection" name="classSection" class="required" placeholder="e.g. 12-A CyberSec" />
-        </div>
-
-        <!-- Overall Workshop Rating -->
-        <div class="input-group">
-          <label for="overallRating">Overall Workshop Rating (1-10)</label>
-          <div class="range-wrapper">
-            <input type="range" id="overallRating" name="overallRating" min="1" max="10" value="5" class="required" />
-            <span class="range-value" id="overallRatingValue">5</span>
-          </div>
-        </div>
-
-        <!-- Most Valuable Session -->
-        <div class="input-group">
-          <label for="valuableSession">Most Valuable Session</label>
-          <select id="valuableSession" name="valuableSession" class="required">
-            <option value="" disabled selected>Select a session</option>
-            <option>Cyber Threat Landscape</option>
-            <option>Password Security & MFA</option>
-            <option>Phishing & Social Engineering</option>
-            <option>Network Defense Basics</option>
-            <option>Hands-on Hacking Lab</option>
-            <option>Incident Response & Forensics</option>
-          </select>
-        </div>
-
-        <!-- Did it improve awareness -->
-        <div class="input-group">
-          <label>Did the workshop improve your cybersecurity awareness?</label>
-          <div class="radio-group required" id="awarenessRadioGroup">
-            <label class="radio-label">
-              <input type="radio" name="improvedAwareness" value="Yes" />
-              <span class="radio-custom"></span> YES
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="improvedAwareness" value="No" />
-              <span class="radio-custom"></span> NO
-            </label>
-          </div>
-          <span class="radio-error" id="radioError"></span>
-        </div>
-
-        <!-- Speaker Rating -->
-        <div class="input-group">
-          <label for="speakerRating">Speaker Rating (1-10)</label>
-          <div class="range-wrapper">
-            <input type="range" id="speakerRating" name="speakerRating" min="1" max="10" value="5" class="required" />
-            <span class="range-value" id="speakerRatingValue">5</span>
-          </div>
-        </div>
-
-        <!-- One thing learned -->
-        <div class="input-group">
-          <label for="learned">One thing you learned today</label>
-          <textarea id="learned" name="learned" class="required" rows="3" placeholder="Share your key takeaway..."></textarea>
-        </div>
-
-        <!-- Suggestions -->
-        <div class="input-group">
-          <label for="suggestions">Suggestions (optional)</label>
-          <textarea id="suggestions" name="suggestions" rows="3" placeholder="Any improvement ideas?"></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn" id="submitBtn">
-          <span class="btn-text">TRANSMIT FEEDBACK</span>
-          <span class="btn-loader"></span>
-        </button>
-      </form>
-    </div>
-
-    <!-- Thank you screen -->
-    <div id="thank-you" style="display: none;">
-      <div class="thank-you-card">
-        <div class="checkmark-wrapper">
-          <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-          </svg>
-        </div>
-        <div class="terminal-box" id="terminal-msg">
-          <span id="typed-thanks"></span><span class="cursor blink">_</span>
-        </div>
-      </div>
+  <!-- 5. Speaker presentation (1–5) -->
+  <div class="input-group">
+    <label for="speakerRating">How was the speaker's presentation? (1‑5)</label>
+    <div class="range-wrapper">
+      <input type="range" id="speakerRating" name="speakerRating" min="1" max="5" value="3" class="required" />
+      <span class="range-value" id="speakerRatingValue">3</span>
     </div>
   </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+  <!-- 6. Most useful part -->
+  <div class="input-group">
+    <label for="mostUseful">Which part of the workshop did you find most useful?</label>
+    <textarea id="mostUseful" name="mostUseful" class="required" rows="3" placeholder="e.g., Phishing demo, Hands‑on lab..."></textarea>
+  </div>
+
+  <!-- 7. Most interesting part -->
+  <div class="input-group">
+    <label for="mostInteresting">Which part of the workshop did you find most interesting?</label>
+    <textarea id="mostInteresting" name="mostInteresting" class="required" rows="3" placeholder="e.g., Live hacking demo..."></textarea>
+  </div>
+
+  <!-- 8. Key takeaway -->
+  <div class="input-group">
+    <label for="keyTakeaway">What was your insight or key takeaway from the workshop?</label>
+    <textarea id="keyTakeaway" name="keyTakeaway" class="required" rows="3" placeholder="One thing you'll remember..."></textarea>
+  </div>
+
+  <!-- 9. Suggestions for improvement -->
+  <div class="input-group">
+    <label for="improvements">What improvements would you suggest?</label>
+    <textarea id="improvements" name="improvements" class="required" rows="3" placeholder="How can we make it better?"></textarea>
+  </div>
+
+  <!-- 10. Additional comments (optional) -->
+  <div class="input-group">
+    <label for="additionalComments">Any additional comments or suggestions? <span style="color:#555">(optional)</span></label>
+    <textarea id="additionalComments" name="additionalComments" rows="3" placeholder="Anything else you'd like to share..."></textarea>
+  </div>
+
+  <!-- 11. Would attend future workshops -->
+  <div class="input-group required-radio-group" id="attendFutureGroup">
+    <label>Would you attend future workshops by Byte Minds?</label>
+    <div class="radio-group">
+      <label class="radio-label">
+        <input type="radio" name="attendFuture" value="Definitely yes" />
+        <span class="radio-custom"></span> Definitely yes
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="attendFuture" value="Probably yes" />
+        <span class="radio-custom"></span> Probably yes
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="attendFuture" value="Maybe" />
+        <span class="radio-custom"></span> Maybe
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="attendFuture" value="Probably no" />
+        <span class="radio-custom"></span> Probably no
+      </label>
+    </div>
+    <span class="radio-error" id="attendFutureError"></span>
+  </div>
+
+  <button type="submit" class="submit-btn" id="submitBtn">
+    <span class="btn-text">TRANSMIT FEEDBACK</span>
+    <span class="btn-loader"></span>
+  </button>
+</form>
