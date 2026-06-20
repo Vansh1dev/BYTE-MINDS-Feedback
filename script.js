@@ -1,6 +1,6 @@
 // ========================
 // Google Apps Script URL – REPLACE WITH YOUR DEPLOYED SCRIPT URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6KFnHizgwWRNvnTh8qSN9Klyj6VjFdRyQnyFxP01UtzVNXMQQU4wO46Dje55s6aY/exec';
 // ========================
 
 document.addEventListener('DOMContentLoaded', () => {
