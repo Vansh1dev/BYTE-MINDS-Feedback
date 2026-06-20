@@ -102,7 +102,6 @@ header {
     0 0 10px #00e5ff,
     0 0 20px #00e5ff,
     0 0 40px #ff4dff;
-  /* No shaking – removed ::before and ::after */
 }
 
 .tagline {
@@ -174,6 +173,7 @@ label {
 }
 
 input[type="text"],
+input[type="email"],
 textarea,
 select {
   width: 100%;
@@ -189,6 +189,7 @@ select {
 }
 
 input[type="text"]:focus,
+input[type="email"]:focus,
 textarea:focus,
 select:focus {
   border-color: #00e5ff;
@@ -244,7 +245,8 @@ input[type="range"]::-moz-range-thumb {
 /* Radio buttons */
 .radio-group {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
   margin-top: 0.4rem;
 }
 
@@ -294,14 +296,6 @@ input[type="range"]::-moz-range-thumb {
   font-size: 0.8rem;
   display: none;
   margin-top: 0.2rem;
-}
-
-/* Select */
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300e5ff' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
 }
 
 /* Submit button */
